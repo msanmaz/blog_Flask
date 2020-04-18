@@ -28,7 +28,7 @@ def upgrade():
     )
     op.create_index(op.f('ix_post_timestamp'), 'post', ['timestamp'], unique=False)
     op.alter_column('users', 'password_has',
-               existing_type=sa.VARCHAR(length=50),
+               existing_type=sa.VARCHAR(length=500),
                nullable=False)
     op.alter_column('users', 'username',
                existing_type=sa.VARCHAR(length=62),

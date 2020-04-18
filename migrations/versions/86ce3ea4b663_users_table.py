@@ -22,7 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=62), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
-    sa.Column('password_has', sa.String(length=50), nullable=True),
+    sa.Column('password_has', sa.String(length=500), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=False)
