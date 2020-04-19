@@ -1,4 +1,5 @@
-from flask import render_template, flash, redirect, url_for, request
+import requests, json
+from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user
 from app import app,db
 from app.forms import LoginForm,RegistrationForm
@@ -7,23 +8,33 @@ from flask_login import logout_user, login_required
 from werkzeug.urls import url_parse
 
 
+def getSearchURL(q):
+  try:
+      import urlparse
+      from urllib import urlencode
+  except: # For Python 3
+      import urllib.parse as urlparse
+      from urllib.parse import urlencode
+
+  url = "https://newsapi.org/v2/everything?"
+  params = {'q': q, 'apiKey':'be4af77aa1f8424f9f31dd14c71503f9'}
+
+  url_parts = list(urlparse.urlparse(url))
+  query = dict(urlparse.parse_qsl(url_parts[4]))
+  query.update(params)
+
+  url_parts[4] = urlencode(query)
+
+  return urlparse.urlunparse(url_parts)
 
 
 @app.route('/')
 @app.route('/index')
 @login_required #doesnt allow without login
 def index():
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', posts=posts)
+
+
+    return render_template('index.html', title='Home')
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -62,3 +73,13 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+
+@app.route('/news', methods=['POST'])
+def news():
+        queryUpdate = request.get_json()['news']
+        r = requests.get(getSearchURL(queryUpdate))
+        data = r.json()
+        return jsonify(data)
+    

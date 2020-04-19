@@ -2,7 +2,51 @@
 
 {%block content %}
   <h1>Hi, {{current_user.username}}!</h1>
-  {% for post in posts %}
-  <div><p> {{post.author.username }} says : <b> {{ post.body }} </b></p></div>
+  {% for post in data %}
+  <div><p> {{post.description }} says : <b> {{ post.title }} </b></p></div>
   {% endfor %}
+  <form id="formList" action="/index">
+    <input type='text' class="searchNews" id="searchBox" placeholder="Search For News">
+    <button class="btn" id="submit" value="update"> Search</button>
+    </form>
+  <div id="newsCon">
+    <div></div>
+  </div>
+
+
+  <script>
+    const searchInput = document.getElementById('searchBox')
+document.getElementById('formList').onsubmit = function(e){
+    e.preventDefault();
+    newsInput = searchInput.value;
+    fetch('/news' ,{
+        method: 'POST',
+        body:JSON.stringify({
+            'news' : newsInput
+        }),
+        headers:{
+            'Content-Type' : 'application/json'
+        }
+    }).then(function(response){
+       return response.json()
+    }).then(function(jsonResponse){
+        console.log(jsonResponse)
+        const data = jsonResponse;
+       var newsAdd = document.getElementById('newsCon');
+       newsAdd.innerHTML = '';
+       jsonResponse.articles.forEach(articles => {
+       var li = document.createElement('li');
+       var title = document.createElement('h2');
+       var descp = document.createElement('p');
+       title.innerHTML = articles.title;
+       descp.innerHTML = articles.description;
+       li.appendChild(title)
+       li.appendChild(descp)
+       newsAdd.appendChild(li)
+
+       });
+    })
+}
+  </script>
+  
 {% endblock %}
