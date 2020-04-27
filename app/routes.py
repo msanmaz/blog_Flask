@@ -3,9 +3,11 @@ from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user
 from app import app,db
 from app.forms import LoginForm,RegistrationForm
-from app.models import User
+from app.models import User,Post
 from flask_login import logout_user, login_required
 from werkzeug.urls import url_parse
+
+
 
 
 def getSearchURL(q):
@@ -76,10 +78,20 @@ def logout():
 
 
 
-@app.route('/news', methods=['POST'])
+@app.route('/news', methods=['GET'])
 def news():
-        queryUpdate = request.get_json()['news']
-        r = requests.get(getSearchURL(queryUpdate))
+        q = request.args.get('q')
+        #queryUpdate = request.get_json()['sweden']
+        print(q)
+        r = requests.get(getSearchURL(q))
         data = r.json()
         return jsonify(data)
+
+
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
     
+
+

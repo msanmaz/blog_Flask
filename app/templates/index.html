@@ -15,15 +15,12 @@
 
 
   <script>
-    const searchInput = document.getElementById('searchBox')
 document.getElementById('formList').onsubmit = function(e){
+    const searchInput = document.getElementById('searchBox')
     e.preventDefault();
     newsInput = searchInput.value;
-    fetch('/news' ,{
-        method: 'POST',
-        body:JSON.stringify({
-            'news' : newsInput
-        }),
+    fetch(`/news?q=${encodeURI(newsInput)}`,{
+        method: 'GET',
         headers:{
             'Content-Type' : 'application/json'
         }

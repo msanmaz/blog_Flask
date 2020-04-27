@@ -39,3 +39,6 @@ class Post(db.Model):
         return '<Post {}>'.format(self.body)
 
 
+class Likes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id
