@@ -2,10 +2,11 @@ import requests, json
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import current_user, login_user
 from app import app,db
-from app.forms import LoginForm,RegistrationForm
+from app.forms import LoginForm,RegistrationForm,ProfileEditForm
 from app.models import User,Post
 from flask_login import logout_user, login_required
 from werkzeug.urls import url_parse
+from datetime import datetime
 
 
 
@@ -91,13 +92,18 @@ def news():
 @app.route('/user/<username>')
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    posts = [
-    {'author': user, 'body': 'Test'},
-    {'author': user, 'body': 'Test2'}
-    ]
-    return render_template('user.html', user=user, posts=posts)
+    user = User.query.filter_by(username=username).first()
+    return render_template('user.html', user=user)
     
 
+@app.before_first_request
+def before_req():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
 
 
+@app.route('/editprofile', methods=['GET','POST'])
+@login_required
+def edit_profile():
+    form = ProfileEditForm()
