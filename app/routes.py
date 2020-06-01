@@ -107,3 +107,10 @@ def before_req():
 @login_required
 def edit_profile():
     form = ProfileEditForm()
+    if form.validate_on_submit():
+        current_user.name = form.name.data
+        current_user.location = form.location.data
+        current_user.about = form.about.data
+        db.session.commit()
+        flash('Your profile has been updated.')
+        
