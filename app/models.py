@@ -1,5 +1,5 @@
 from datetime import datetime
-from app import db , login
+from app import db, login
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from hashlib import md5
@@ -10,6 +10,13 @@ from hashlib import md5
 def load_user(id):
     return User.query.get(int(id))
 
+
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('users.id')))
+
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -18,6 +25,12 @@ class User(UserMixin, db.Model):
     password_has = db.Column(db.String(500))
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime,default=datetime.utcnow)
+    posts = db.relationship('Post', backref='writer', lazy='dynamic')
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     def set_password(self, password):
         self.password_has = generate_password_hash(password)
@@ -51,4 +64,5 @@ class Likes(db.Model):
     post_id = db.Column(db.Integer)
     def __repr__(self):
         return '<Post {}>'.format(self.post_id)
+
 
